@@ -1,4 +1,5 @@
 # Logs
+neo4j/*
 logs
 *.log
 npm-debug.log*
