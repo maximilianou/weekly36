@@ -1,6 +1,6 @@
 # Logs
-!neo4j/docker-compose.yml
 neo4j/*
+!neo4j/docker-compose.yml
 
 logs
 *.log
