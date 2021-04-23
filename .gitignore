@@ -1,5 +1,7 @@
 # Logs
+!neo4j/docker-compose.yml
 neo4j/*
+
 logs
 *.log
 npm-debug.log*
