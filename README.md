@@ -126,4 +126,88 @@ GRAPHQL_SERVER_PATH=/graphql
 
 
 -----------------------
-- 
+- WIP: Fixing some things, may I have to start from other place in other try. Today it is working in this way
+
+- package.json
+```json
+{
+  "devDependencies": {
+    "concurrently": "^5.2.0",
+    "dotenv": "^8.2.0",
+    "execa": "^4.0.2",
+    "grandstack": "^0.0.1",
+    "husky": ">=4",
+    "lint-staged": ">=10",
+    "prettier": "^2.2.1"
+  },
+  "scripts": {
+    "seedDb": "node scripts/seed.js",
+    "start": "node scripts/start-dev.js",
+    "build": "node scripts/build.js",
+    "format": "find . -name \"*.js\" | grep -v node_modules | grep -v build | xargs prettier --write",
+    "format:log": "find . -name \"*.js\" | grep -v node_modules | grep -v build | xargs prettier",
+    "inferschema:write": "node scripts/inferSchema.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  }
+}
+```
+
+- ui/package.json
+```json
+{
+  "name": "ui",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@testing-library/jest-dom": "^5.12.0",
+    "@testing-library/react": "^11.2.6",
+    "@testing-library/user-event": "^12.8.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.3",
+    "web-vitals": "^1.1.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/react-dom": "^17.0.3",
+    "@types/react-router-dom": "^5.1.7"
+  }
+}
+```
+
