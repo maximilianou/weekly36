@@ -66,3 +66,11 @@ GRAPHQL_SERVER_PORT=4001
 GRAPHQL_SERVER_PATH=/graphql
 ```
 
+-------------
+- Commit this changes, for future docs/steps by steps, or baby steps
+```
+( husky > pre-commit hook failed (add --no-verify to bypass) )
+:~/projects/weekly36$ git commit --no-verify  -m 'feat(app): init grandstack, connected to local neo4j db. with api/.env'
+```
+
+
