@@ -38,6 +38,8 @@ step02:
 	cd neo4j && docker-compose down 
 step03:
 	npx create-grandstack-app notes
+step04:
+  cd notes && npm run start && npm run seedDb
 
 ```
 
@@ -73,4 +75,55 @@ GRAPHQL_SERVER_PATH=/graphql
 :~/projects/weekly36$ git commit --no-verify  -m 'feat(app): init grandstack, connected to local neo4j db. with api/.env'
 ```
 
+-----------------------
+- Solving somthing Today 2021.04.25
+```
+14:33:48 React-TS | To fix the dependency tree, try following the steps below in the exact order:
+14:33:48 React-TS | 
+14:33:48 React-TS |   1. Delete package-lock.json (not package.json!) and/or yarn.lock in your project folder.
+14:33:48 React-TS |   2. Delete node_modules in your project folder.
+14:33:48 React-TS |   3. Remove "eslint" from dependencies and/or devDependencies in the package.json file in your project folder.
+14:33:48 React-TS |   4. Run npm install or yarn, depending on the package manager you use.
+```
 
+- Fixing eslint version Default Verbose Message when init app
+```
+:~/projects/weekly36/notes$ cd notes
+:~/projects/weekly36/notes$ rm -rf node_modules
+:~/projects/weekly36/notes$ rm package-lock.json
+:~/projects/weekly36/notes$ cat package.json 
+{
+  "devDependencies": {
+    "concurrently": "^5.2.0",
+    "dotenv": "^8.2.0",
+    "execa": "^4.0.2",
+    "grandstack": "^0.0.1",
+    "husky": ">=4",
+    "lint-staged": ">=10",
+    "prettier": "^2.0.5"
+  },
+  "scripts": {
+    "seedDb": "node scripts/seed.js",
+    "start": "node scripts/start-dev.js",
+    "build": "node scripts/build.js",
+    "format": "find . -name \"*.js\" | grep -v node_modules | grep -v build | xargs prettier --write",
+    "format:log": "find . -name \"*.js\" | grep -v node_modules | grep -v build | xargs prettier",
+    "inferschema:write": "node scripts/inferSchema.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  }
+}
+```
+
+
+-----------------------
+- 
