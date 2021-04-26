@@ -331,3 +331,71 @@ neo4j_1  | 	at org.neo4j.procedure.impl.ProcedureJarLoader.loadProceduresFromDir
 ...
 ```
 ----------------------
+- docker-compose.yml
+```
+version: '3'
+services:
+  neo4j:
+    image: neo4j:latest
+    ports:
+      - 7474:7474
+      - 7687:7687
+    volumes:
+      - ./neo4j/conf:/conf
+      - ./neo4j/data:/data
+      - ./neo4j/import:/import
+      - ./neo4j/logs:/logs
+      - ./neo4j/plugins:/plugins
+    environment: 
+      NEO4J_AUTH: neo4j/secret
+   
+  api:
+    build: ./notes/api
+    ports:
+      - 4001:4001
+    environment:
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=secret
+      - GRAPHQL_LISTEN_PORT=4001
+      - GRAPHQL_URI=http://api:4001/graphql
+    links:
+      - neo4j
+    depends_on:
+      - neo4j
+
+  ui:
+    build: ./notes/ui
+    ports:
+      - 3000:3000
+    environment:
+      - CI=true
+      - REACT_APP_GRAPHQL_URI=/graphql
+      - PROXY=http://api:4001/graphql
+    links:
+      - api
+    depends_on:
+      - api    
+```
+- notes/api/Dockerfile
+```
+FROM node:alpine
+WORKDIR /usr/src/app
+COPY --chown=node:node . /usr/src/app
+COPY package.json package-lock.json /usr/src/app/
+RUN chown -R node:node /usr/local/*
+RUN chown -R node:node /usr/src/app/*
+USER node
+RUN npm install
+COPY . .
+ARG PORT=4001
+ENV PORT=${PORT} 
+EXPOSE ${PORT}
+CMD ["npm", "run", "start:dev"]
+```
+
+- backend graphql running
+http://0.0.0.0:4001/graphql
+
+
+----------------------
