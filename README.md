@@ -211,3 +211,123 @@ GRAPHQL_SERVER_PATH=/graphql
 }
 ```
 
+--------------------------
+- Fixing Libraries, takes me to follow de docker-compose.yml
+
+- notes/docker-compose.yml ( updated )
+```
+version: '3'
+
+services:
+  neo4j:
+    build: ./neo4j
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_dbms_shell_enabled=true
+
+  api:
+    build: ./api
+    ports:
+      - 4001:4001
+    environment:
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=secret
+      - GRAPHQL_LISTEN_PORT=4001
+      - GRAPHQL_URI=http://api:4001/graphql
+
+    links:
+      - neo4j
+    depends_on:
+      - neo4j
+
+  ui:
+    build: ./ui
+    ports:
+      - 3000:3000
+    environment:
+      - CI=true
+      - REACT_APP_GRAPHQL_URI=/graphql
+      - PROXY=http://api:4001/graphql
+    links:
+      - api
+    depends_on:
+      - api
+```
+
+- notes/neo4j/Dockerfile ( updated )
+```
+FROM neo4j:latest
+
+ENV NEO4J_AUTH=neo4j/secret \
+    APOC_VERSION=4.2.0.2 \
+    GRAPHQL_VERSION=4.0
+
+ENV APOC_URI https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/${APOC_VERSION}/apoc-${APOC_VERSION}-all.jar
+RUN sh -c 'cd /var/lib/neo4j/plugins && /usr/bin/apt -y update && /usr/bin/apt install -y curl wget gosu jq && curl -L -O "${APOC_URI}"'
+
+ENV GRAPHQL_URI https://github.com/neo4j-graphql/neo4j-graphql/releases/download/${GRAPHQL_VERSION}/neo4j-graphql-${GRAPHQL_VERSION}.jar
+RUN sh -c 'cd /var/lib/neo4j/plugins && curl -L -O "${GRAPHQL_URI}"'
+
+EXPOSE 7474 7473 7687
+
+CMD ["neo4j"]
+
+```
+
+- notes/api/Dockerfile ( updated )
+```
+FROM node:alpine
+WORKDIR /usr/src/app
+COPY --chown=node:node . /usr/src/app
+COPY package.json package-lock.json /usr/src/app/
+RUN chown -R node:node /usr/local/*
+RUN chown -R node:node /usr/src/app/*
+USER node
+RUN npm install
+COPY . .
+ARG PORT=4001
+ENV PORT=${PORT} 
+EXPOSE ${PORT}
+CMD ["npm", "start"]
+
+```
+
+- notes/ui/Dockerfile ( updated )
+```
+FROM node:alpine
+WORKDIR /usr/src/app
+COPY --chown=node:node . /usr/src/app
+COPY package.json package-lock.json /usr/src/app/
+RUN chown -R node:node /usr/local/*
+RUN chown -R node:node /usr/src/app/*
+USER node
+RUN npm install
+COPY . .
+ARG PORT=3000
+ENV PORT=${PORT} 
+EXPOSE ${PORT}
+CMD "npm" "start"
+```
+
+
+- Problem, this all changes advance executing, but, seeding db was not posible with apoc ( outdated version, in the last version updated)
+```
+...
+neo4j_1  | 	at org.neo4j.server.CommunityEntryPoint.main(CommunityEntryPoint.java:35) [neo4j-4.2.5.jar:4.2.5]
+neo4j_1  | Caused by: org.neo4j.kernel.lifecycle.LifecycleException: Component 'org.neo4j.procedure.impl.GlobalProceduresRegistry@71e7adbb' was successfully initialized, but failed to start. Please see the attached cause exception "Some jar procedure files (neo4j-graphql-4.0.jar) are invalid, see log for details.".
+neo4j_1  | 	at org.neo4j.kernel.lifecycle.LifeSupport$LifecycleInstance.start(LifeSupport.java:463) ~[neo4j-common-4.2.5.jar:4.2.5]
+
+...
+neo4j_1  | 	at org.neo4j.graphdb.facade.DatabaseManagementServiceFactory.startDatabaseServer(DatabaseManagementServiceFactory.java:198) ~[neo4j-4.2.5.jar:4.2.5]
+neo4j_1  | 	... 5 more
+neo4j_1  | Caused by: java.util.zip.ZipException: Some jar procedure files (neo4j-graphql-4.0.jar) are invalid, see log for details.
+neo4j_1  | 	at org.neo4j.procedure.impl.ProcedureJarLoader.loadProceduresFromDir(ProcedureJarLoader.java:82) ~[neo4j-procedure-4.2.5.jar:4.2.5]
+...
+```
+----------------------
