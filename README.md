@@ -331,6 +331,8 @@ neo4j_1  | 	at org.neo4j.procedure.impl.ProcedureJarLoader.loadProceduresFromDir
 ...
 ```
 ----------------------
+### FIXED everything to this point (local environment Neo4j(OK) Back(OK) WIP: UI(pending) )
+----------------------
 - docker-compose.yml
 ```
 version: '3'
@@ -399,3 +401,5 @@ http://0.0.0.0:4001/graphql
 
 
 ----------------------
+
+
