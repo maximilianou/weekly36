@@ -7,7 +7,7 @@ RUN chown -R node:node /usr/src/app/*
 USER node
 RUN npm install
 COPY . .
-ARG PORT=4001
+ARG PORT=3000
 ENV PORT=${PORT} 
 EXPOSE ${PORT}
-CMD ["npm", "start"]
+CMD "npm" "start"
