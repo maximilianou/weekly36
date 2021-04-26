@@ -10,4 +10,4 @@ COPY . .
 ARG PORT=4001
 ENV PORT=${PORT} 
 EXPOSE ${PORT}
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:dev"]
